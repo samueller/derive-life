@@ -6,7 +6,7 @@
 <svelte:head>
 	<title>Evolve Quad-Community</title>
 	<link href="https://unpkg.com/balloon-css/balloon.min.css" rel="stylesheet" />
-	<!-- <script src="https://unpkg.com/mathjs/lib/browser/math.js"></script> -->
+	<script src="https://unpkg.com/mathjs/lib/browser/math.js"></script>
 </svelte:head>
 
 <div>
