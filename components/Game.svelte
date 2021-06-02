@@ -1,6 +1,9 @@
 <script lang="ts">
 	import game, { maxRuns, runs } from '../lib/game/store'
-	import quadLife from '../lib/game/quad_life.js'
+	import quadLife, {
+		context as contextStore,
+		canvas as canvasStore
+	} from '../lib/game/quad_life.js'
 	import { onMount, onDestroy, setContext } from 'svelte'
 
 	let canvas: HTMLCanvasElement, context
@@ -13,6 +16,8 @@
 
 	onMount(() => {
 		context = canvas.getContext('2d')
+		canvasStore.set(canvas)
+		contextStore.set(context)
 	})
 </script>
 
