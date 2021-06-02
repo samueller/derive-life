@@ -1,12 +1,13 @@
 <script lang="ts">
-	import game, { maxRuns, runs } from '../lib/game/store'
+	import game, { maxRuns, runs, running } from '../lib/game/store'
 	import quadLife, {
 		context as contextStore,
-		canvas as canvasStore
+		canvas as canvasStore,
+		quadLoop
 	} from '../lib/game/quad_life.js'
 	import { onMount, onDestroy, setContext } from 'svelte'
 
-	let canvas: HTMLCanvasElement, context
+	let canvas: HTMLCanvasElement, context: CanvasRenderingContext2D
 
 	const handleResize = () => {
 		// width.set(window.innerWidth);
@@ -15,16 +16,31 @@
 	}
 
 	onMount(() => {
-		context = canvas.getContext('2d')
-		canvasStore.set(canvas)
-		contextStore.set(context)
+		const possibleContext = canvas.getContext('2d')
+		if (possibleContext != null) {
+			context = possibleContext
+			canvasStore.set(canvas)
+			contextStore.set(context)
+			loop()
+		}
 	})
+	let frame
+
+	const loop = () => {
+		setTimeout(() => {
+			requestAnimationFrame(loop)
+		}, 10000)
+		// requestAnimationFrame(loop)
+		// context.subscribe(cx => {
+		quadLoop(context)
+		// })
+	}
 </script>
 
 <main {...$$restProps}>
 	<p>
 		{$runs} out of {$maxRuns.toLocaleString()} runs
 	</p>
-	<canvas bind:this={canvas} width="100%" />
+	<canvas bind:this={canvas} width="600" height="600" />
 </main>
 <svelte:window on:resize|passive={handleResize} />
