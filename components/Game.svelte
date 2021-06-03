@@ -29,7 +29,7 @@
 	const loop = () => {
 		setTimeout(() => {
 			requestAnimationFrame(loop)
-		}, 100)
+		}, 1000)
 		// requestAnimationFrame(loop)
 		// context.subscribe(cx => {
 		quadLoop(context)
