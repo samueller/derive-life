@@ -29,7 +29,7 @@
 	const loop = () => {
 		setTimeout(() => {
 			requestAnimationFrame(loop)
-		}, 10000)
+		}, 100)
 		// requestAnimationFrame(loop)
 		// context.subscribe(cx => {
 		quadLoop(context)
@@ -41,6 +41,7 @@
 	<p>
 		{$runs} out of {$maxRuns.toLocaleString()} runs
 	</p>
+	<br />
 	<canvas bind:this={canvas} width="600" height="600" />
 </main>
 <svelte:window on:resize|passive={handleResize} />
