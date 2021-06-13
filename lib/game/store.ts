@@ -1,22 +1,23 @@
 import { writable, derived } from 'svelte/store'
 
-const game = writable({
-	// running: false,
-	// runs: 0,
-	// type: 3,
-	// seed: -1,
-	// population: 200,
-	// trials: 2,
-	// generations: 100,
-	// min_seed_width: 5,
-	// min_seed_height: 5,
-	// seed_width: 5,
-	// seed_height: 5,
-	// max_area_initial: 120,
-	// max_area_final: 170
-})
+// const game = writable({
+// running: false,
+// runs: 0,
+// type: 3,
+// seed: -1,
+// population: 200,
+// trials: 2,
+// generations: 100,
+// min_seed_width: 5,
+// min_seed_height: 5,
+// seed_width: 5,
+// seed_height: 5,
+// max_area_initial: 120,
+// max_area_final: 170
+// })
 
-export let running = writable(false),
+export const running = writable(false),
+	runningAnim = writable(false),
 	runs = writable(0),
 	type = writable(3),
 	seed = writable(-1),
@@ -36,7 +37,6 @@ export let running = writable(false),
 	tournament_size = writable(2),
 	mutation_rate = writable(0.01),
 	prob_grow = writable(0.2),
-	// prob_flip = writable(0.6),
 	prob_shrink = writable(0.2),
 	elite_size = writable(50),
 	min_similarity = writable(0.8),
@@ -44,9 +44,8 @@ export let running = writable(false),
 	prob_fission = writable(0.01),
 	prob_fusion = writable(0.005),
 	fusion_shuffle = writable(false),
-	persistent_mutualism = writable(false)
-
-export const maxRuns = derived(
+	persistent_mutualism = writable(false),
+	maxRuns = derived(
 		[generations, population],
 		([$generations, $population]) => $generations * $population
 	),
@@ -56,4 +55,4 @@ export const maxRuns = derived(
 			Math.round((1 - ($prob_grow + $prob_shrink) + Number.EPSILON) * 100) / 100
 	)
 
-export default game
+// export default game

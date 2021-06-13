@@ -40,7 +40,9 @@
 <aside {...$$restProps}>
 	<form on:submit|preventDefault>
 		<div class="controls">
-			<button on:click={quad.startPause}>{$running ? 'Pause' : 'Start'}</button>
+			<button on:click={() => quad.startPause(window.requestAnimationFrame)}
+				>{$running ? 'Pause' : 'Start'}</button
+			>
 		</div>
 		<Parameter
 			class="parameter"
