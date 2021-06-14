@@ -488,5 +488,6 @@
 	div.controls {
 		display: flex;
 		align-items: center;
+		margin-bottom: 9px;
 	}
 </style>

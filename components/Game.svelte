@@ -1,8 +1,17 @@
 <script lang="ts">
-	import { maxRuns, runs, runningAnim } from '../lib/game/store'
+	import { maxRuns, runs, runningAnim, population } from '../lib/game/store'
 	import quad, {
 		context as contextStore,
-		canvas as canvasStore
+		canvas as canvasStore,
+		seed1Context as seed1ContextStore,
+		seed2Context as seed2ContextStore,
+		seed3Context as seed3ContextStore,
+		seed4Context as seed4ContextStore,
+		seed1AnimContext as seed1AnimContextStore,
+		seed2AnimContext as seed2AnimContextStore,
+		seed3AnimContext as seed3AnimContextStore,
+		seed4AnimContext as seed4AnimContextStore,
+		steps
 	} from '../lib/game/quad_life.js'
 	import { onMount, onDestroy, setContext } from 'svelte'
 
@@ -32,33 +41,66 @@
 	}
 
 	onMount(() => {
-		const possibleContext = canvas.getContext('2d')
-		if (possibleContext != null) {
-			context = possibleContext
+		const context = canvas.getContext('2d'),
+			seed1Context = seed1.getContext('2d'),
+			seed2Context = seed2.getContext('2d'),
+			seed3Context = seed3.getContext('2d'),
+			seed4Context = seed4.getContext('2d'),
+			seed1AnimContext = seed1Anim.getContext('2d'),
+			seed2AnimContext = seed2Anim.getContext('2d'),
+			seed3AnimContext = seed3Anim.getContext('2d'),
+			seed4AnimContext = seed4Anim.getContext('2d')
+		if (
+			context &&
+			seed1Context &&
+			seed2Context &&
+			seed3Context &&
+			seed4Context &&
+			seed1AnimContext &&
+			seed2AnimContext &&
+			seed3AnimContext &&
+			seed4AnimContext
+		) {
 			canvasStore.set(canvas)
 			contextStore.set(context)
+			seed1ContextStore.set(seed1Context)
+			seed2ContextStore.set(seed2Context)
+			seed3ContextStore.set(seed3Context)
+			seed4ContextStore.set(seed4Context)
+			seed1AnimContextStore.set(seed1AnimContext)
+			seed2AnimContextStore.set(seed2AnimContext)
+			seed3AnimContextStore.set(seed3AnimContext)
+			seed4AnimContextStore.set(seed4AnimContext)
 		}
 	})
 </script>
 
 <main {...$$restProps}>
-	<div>
-		Top seeds: <canvas bind:this={seed1} width="20" height="20" />
-		<canvas bind:this={seed2} width="20" height="20" />
-		<canvas bind:this={seed3} width="20" height="20" />
-		<canvas bind:this={seed4} width="20" height="20" />
-		<button>Compete</button>
-		Animation: <canvas bind:this={seed1Anim} width="20" height="20" />
-		<canvas bind:this={seed2Anim} width="20" height="20" />
-		<canvas bind:this={seed3Anim} width="20" height="20" />
-		<canvas bind:this={seed4Anim} width="20" height="20" />
+	<div style="margin-bottom: 7px">
+		Top seeds: <canvas class="seed" bind:this={seed1} width="20" height="20" />
+		<canvas class="seed" bind:this={seed2} width="20" height="20" />
+		<canvas class="seed" bind:this={seed3} width="20" height="20" />
+		<canvas class="seed" bind:this={seed4} width="20" height="20" />
+		<button on:click={() => quad.competeAnim(window.requestAnimationFrame)}
+			>Compete</button
+		>
+		Animation:
+		<canvas class="seed" bind:this={seed1Anim} width="20" height="20" />
+		<canvas class="seed" bind:this={seed2Anim} width="20" height="20" />
+		<canvas class="seed" bind:this={seed3Anim} width="20" height="20" />
+		<canvas class="seed" bind:this={seed4Anim} width="20" height="20" />
 		<button on:click={() => quad.startPauseAnim(window.requestAnimationFrame)}
 			>{$runningAnim ? 'Pause' : 'Play'}</button
-		> <button>Reset</button>
+		>
+		<button on:click={() => quad.resetAnim(window.requestAnimationFrame)}
+			>Reset</button
+		>
+		Steps: {$steps}
 	</div>
 	<p style="margin-bottom: 7px;">
-		{$runs} out of {$maxRuns.toLocaleString()} runs, Generation 1, Average elite
-		seed fitness: 5.2
+		{$runs} out of {$maxRuns.toLocaleString()} runs, Generation {Math.floor(
+			$runs / $population
+		) + 1}, Average elite seed fitness: 5.2
 	</p>
 	<canvas bind:this={canvas} width="600" height="600" />
 </main>

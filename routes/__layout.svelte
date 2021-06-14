@@ -52,4 +52,8 @@
 		position: relative;
 		top: 1px;
 	}
+
+	canvas.seed {
+		vertical-align: middle;
+	}
 </style>
