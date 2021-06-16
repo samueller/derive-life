@@ -388,26 +388,19 @@ const updateHistories = params => population => seedIndex => {
 		)
 	// compete with partitions of 3
 	const groups = []
-	for (let j = 0; j < length; j += 3) {
+	for (let j = 0; j < length; j += 3)
 		groups.push([
 			seedIndex,
 			shuffled[j],
 			shuffled[(j + 1) % length],
 			shuffled[(j + 2) % length]
 		])
-		// const j0 = shuffled[j],
-		// 	j1 = shuffled[(j + 1) % length],
-		// 	j2 = shuffled[(j + 2) % length]
-		// const scores = scoreQuad(params)([
-		// 	population[seedIndex],
-		// 	population[j0],
-		// 	population[j1],
-		// 	population[j2]
-		// ])
-	}
-	// threads[0].postMessage(['quad', population, groups])
 	for (let j = 0; j < groups.length; j++)
-		threads[j % threads.length].postMessage(['quad', population, [groups[j]]])
+		threads[j % threads.length].postMessage([
+			'quad',
+			bareSeeds(groups[j].map(seedIndex => population[seedIndex])), // minimize data transfer
+			groups[j]
+		])
 }
 
 const setAllHistories = params => population => {
@@ -745,7 +738,7 @@ const fusion =
 			).map(i => population[i]),
 			seed1 = copyIntoSimpleSeed(candidateSeed),
 			candidateSeed2 = maxFitness(tournamentSample)
-		seed2 = copyIntoSimpleSeed(candidateSeed2) //,
+		seed2 = copyIntoSimpleSeed(candidateSeed2)
 		if (params.fusionShuffle) shuffle(seed2.cells)
 		if (Math.random() < 0.5) transposeSimpleSeed(seed1)
 		if (Math.random() < 0.5) transposeSimpleSeed(seed2)
@@ -788,11 +781,15 @@ const symbiotic =
 	}
 
 const bareSeeds = seeds =>
-	seeds.map(seed => ({
-		cells: seed.cells,
-		width: seed.width,
-		score: seed.score
+	seeds.map(({ cells, width, height, live }) => ({
+		cells,
+		width,
+		height,
+		live
 	}))
+
+const bareSeedsWithScore = seeds =>
+	seeds.map(({ cells, width, score }) => ({ cells, width, score }))
 
 const run = params => {
 	// if (params.randomSeed != -1)
@@ -868,10 +865,10 @@ onmessage = function (e) {
 				thread.onmessage = function (e) {
 					switch (e.data[0]) {
 						case 'scored':
+							// const [seedIndices, scores] = e.data[1]
+							// console.log('seIn', seedIndices, scores, e.data[1])
 							if (phase == 0) {
-								e.data[1].forEach(([seedIndices, scores]) => {
-									updateHistoriesFromGame(population)(seedIndices, scores)
-								})
+								updateHistoriesFromGame(population)(e.data[1], e.data[2])
 								if (++quadGroupsCount == quadGroupsPerSeed) {
 									quadGroupsCount = 0 // reset to count again
 									postMessage([
@@ -884,9 +881,7 @@ onmessage = function (e) {
 									}
 								}
 							} else {
-								e.data[1].forEach(([seedIndices, scores]) => {
-									updateHistoriesFromGame(population)(seedIndices, scores)
-								})
+								updateHistoriesFromGame(population)(e.data[1], e.data[2])
 								if (++quadGroupsCount == quadGroupsPerSeed) {
 									quadGroupsCount = 0
 									updateAllScores(population)
@@ -894,7 +889,7 @@ onmessage = function (e) {
 									if (runs % Math.max(populationSize, 50) == 0)
 										postMessage([
 											Message.generationCompleted,
-											bareSeeds(topSeeds(population))
+											bareSeedsWithScore(topSeeds(population))
 										])
 									if (runs++ <= maxRuns) computeRun()
 								}

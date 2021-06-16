@@ -32,6 +32,7 @@ export const threads = writable(4),
 	probFusion = writable(0.005),
 	fusionShuffle = writable(false),
 	persistentMutualism = writable(false),
+	perfStats = writable(false),
 	maxRuns = derived(
 		[generations, population],
 		([$generations, $population]) => $generations * $population

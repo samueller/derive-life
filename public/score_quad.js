@@ -253,7 +253,7 @@ const scoreQuad = params => seeds => {
 	let grid = new Array(gridWidth * gridHeight).fill(0)
 
 	// place seeds random 90 deg rotation and position
-	shuffle(seeds)
+	// shuffle(seeds)
 	placeSeeds(
 		grid,
 		gridWidth,
@@ -357,6 +357,16 @@ onmessage = function (e) {
 			break
 
 		case 'quad':
+			const seeds = e.data[1],
+				group = e.data[2]
+			this.postMessage([
+				'scored',
+				group,
+				scoreQuad({ widthFactor, heightFactor, timeFactor })(seeds)
+			])
+			break
+
+		case 'quads':
 			const population = e.data[1],
 				groups = e.data[2]
 			this.postMessage([

@@ -29,6 +29,7 @@
 		probFusion,
 		fusionShuffle,
 		persistentMutualism,
+		perfStats,
 		probFlip
 	} from '../lib/game/store'
 	import quad from '../lib/game/quad_life'
@@ -480,6 +481,15 @@
 			let:id
 		>
 			<input {id} bind:checked={$persistentMutualism} type="checkbox" />
+		</Parameter>
+		<Parameter
+			class="parameter"
+			id="performance-stats"
+			title="performance stats"
+			description="Various stats printed in the console"
+			let:id
+		>
+			<input {id} bind:checked={$perfStats} type="checkbox" />
 		</Parameter>
 	</form>
 </aside>
