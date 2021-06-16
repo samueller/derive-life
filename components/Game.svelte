@@ -1,5 +1,7 @@
 <script lang="ts">
 	import {
+		seedsInitialized,
+		topRelativeFitness,
 		maxRuns,
 		runs,
 		runningAnim,
@@ -104,9 +106,16 @@
 		Steps: {$steps}
 	</div>
 	<p style="margin-bottom: 7px;">
-		{$runs} out of {$maxRuns.toLocaleString()} runs, {Math.floor(
-			$runs / $population
-		)} out of {$generations} generations, Average elite seed fitness: 5.2
+		{#if $seedsInitialized == 0 || $seedsInitialized == $population}
+			{$runs} out of {$maxRuns.toLocaleString()} runs, {Math.floor(
+				$runs / $population
+			)} out of {$generations} generations, Average top seed fitness: {$topRelativeFitness.toFixed(
+				2
+			)}
+		{/if}
+		{#if !($seedsInitialized == 0 || $seedsInitialized == $population)}
+			{$seedsInitialized} out of {$population} seeds initialized
+		{/if}
 	</p>
 	<canvas bind:this={canvas} width="600" height="600" />
 </main>

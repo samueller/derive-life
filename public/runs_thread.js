@@ -537,19 +537,19 @@ const delLastCol = seed => {
 	transposeSimpleSeed(seed)
 }
 
-const shrink = seed => {
+const shrink = params => seed => {
 	switch (randInt(4)) {
 		case 0:
-			delFirstRow(seed)
+			if (seed.height > params.minSeedHeight) delFirstRow(seed)
 			break
 		case 1:
-			delLastRow(seed)
+			if (seed.height > params.minSeedHeight) delLastRow(seed)
 			break
 		case 2:
-			delFirstCol(seed)
+			if (seed.width > params.minSeedWidth) delFirstCol(seed)
 			break
 		case 3:
-			delLastCol(seed)
+			if (seed.width > params.minSeedWidth) delLastCol(seed)
 			break
 	}
 }
@@ -560,7 +560,7 @@ const mutate = params => seed => {
 	if (picker < params.probGrow) grow(seed, params.seedDensity)
 	else if (picker < params.probGrow + params.probFlip)
 		randomlyFlipCells(params.mutationRate)(seed)
-	else shrink(seed)
+	else shrink(params)(seed)
 }
 
 const sexual =
@@ -745,6 +745,13 @@ const symbiotic =
 			sexual(params, populationIndices)(candidateSeed, population, maxSeedArea)
 	}
 
+const bareSeeds = seeds =>
+	seeds.map(seed => ({
+		cells: seed.cells,
+		width: seed.width,
+		score: seed.score
+	}))
+
 const run = params => {
 	// if (params.randomSeed != -1)
 	// 	math.config({seed: params.randomSeed})
@@ -790,14 +797,36 @@ const run = params => {
 		updatePopulation(candidateSeed, population, maxSeedArea)
 		if (n % 10 == 0) postMessage([Message.runCompleted, n])
 		if (n % Math.max(params.populationSize, 200) == 0)
-			postMessage([Message.generationCompleted, topSeeds(population)])
+			postMessage([
+				Message.generationCompleted,
+				bareSeeds(topSeeds(population))
+			])
 	}
 }
+
+let threads
 
 onmessage = function (e) {
 	switch (e.data[0]) {
 		case Message.start:
 			// console.log('Starting')
+			threads = Array.from({ length: 16 }, () => {
+				const thread = new Worker('score_quad.js')
+				thread.onmessage = function (e) {
+					switch (e.data[0]) {
+						case 'scored':
+							console.log('yay', e.data[1])
+							break
+					}
+				}
+				thread.postMessage([
+					'init',
+					e.data[1].widthFactor,
+					e.data[1].heightFactor,
+					e.data[1].timeFactor
+				])
+				return thread
+			})
 			run(e.data[1])
 			break
 
