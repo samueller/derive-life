@@ -332,13 +332,51 @@ const scoreQuad = params => seeds => {
 	return assignPoints(counts)
 }
 
-const updateHistoriesFromGame = (seed, score, other1, other2, other3) => {
+const updateHistoriesFromGameForSeed = (
+	seed,
+	score,
+	other1,
+	other2,
+	other3
+) => {
+	// console.log('Histories', seed.history, score, other1, other2, other3)
 	seed.history[other1].scores += score
 	seed.history[other2].scores += score
 	seed.history[other3].scores += score
 	seed.history[other1].games++
 	seed.history[other2].games++
 	seed.history[other3].games++
+}
+
+const updateHistoriesFromGame = population => (seedIndices, scores) => {
+	updateHistoriesFromGameForSeed(
+		population[seedIndices[0]],
+		scores[0],
+		seedIndices[1],
+		seedIndices[2],
+		seedIndices[3]
+	)
+	updateHistoriesFromGameForSeed(
+		population[seedIndices[1]],
+		scores[1],
+		seedIndices[0],
+		seedIndices[2],
+		seedIndices[3]
+	)
+	updateHistoriesFromGameForSeed(
+		population[seedIndices[2]],
+		scores[2],
+		seedIndices[0],
+		seedIndices[1],
+		seedIndices[3]
+	)
+	updateHistoriesFromGameForSeed(
+		population[seedIndices[3]],
+		scores[3],
+		seedIndices[0],
+		seedIndices[1],
+		seedIndices[2]
+	)
 }
 
 const updateHistories = params => population => seedIndex => {
@@ -349,32 +387,41 @@ const updateHistories = params => population => seedIndex => {
 			Array.from({ length }, (_, j) => (j >= seedIndex ? j + 1 : j))
 		)
 	// compete with partitions of 3
+	const groups = []
 	for (let j = 0; j < length; j += 3) {
-		const j0 = shuffled[j],
-			j1 = shuffled[(j + 1) % length],
-			j2 = shuffled[(j + 2) % length]
-		const scores = scoreQuad(params)([
-			population[seedIndex],
-			population[j0],
-			population[j1],
-			population[j2]
+		groups.push([
+			seedIndex,
+			shuffled[j],
+			shuffled[(j + 1) % length],
+			shuffled[(j + 2) % length]
 		])
-		updateHistoriesFromGame(population[seedIndex], scores[0], j0, j1, j2)
-		updateHistoriesFromGame(population[j0], scores[1], seedIndex, j1, j2)
-		updateHistoriesFromGame(population[j1], scores[2], seedIndex, j0, j2)
-		updateHistoriesFromGame(population[j2], scores[3], seedIndex, j0, j1)
+		// const j0 = shuffled[j],
+		// 	j1 = shuffled[(j + 1) % length],
+		// 	j2 = shuffled[(j + 2) % length]
+		// const scores = scoreQuad(params)([
+		// 	population[seedIndex],
+		// 	population[j0],
+		// 	population[j1],
+		// 	population[j2]
+		// ])
 	}
+	// threads[0].postMessage(['quad', population, groups])
+	for (let j = 0; j < groups.length; j++)
+		threads[j % threads.length].postMessage(['quad', population, [groups[j]]])
 }
 
 const setAllHistories = params => population => {
 	const update = updateHistories(params)(population)
 	for (let i = 0; i < population.length; i++) {
 		update(i)
-		postMessage([Message.initialScoringUpdate, i])
 	}
 }
 
 const updateAllScores = population => {
+	// console.log(
+	// 	'hist',
+	// 	population[0].history.flatMap(h => [h.scores, h.games])
+	// )
 	population.forEach(seed => {
 		seed.score =
 			seed.history.reduce(
@@ -423,9 +470,8 @@ const uniformAsexual = params => (candidateSeed, population) => {
 	)
 	oldSeedIndex = indexMinFitness(population)
 	population[oldSeedIndex] = newSeed
-	updateHistories(params)(population)(oldSeedIndex)
 	updateSimilarities(population)(oldSeedIndex)
-	updateAllScores(population)
+	updateHistories(params)(population)(oldSeedIndex)
 }
 
 const variableAsexual = params => (candidateSeed, population, maxSeedArea) => {
@@ -441,9 +487,8 @@ const variableAsexual = params => (candidateSeed, population, maxSeedArea) => {
 	)
 	oldSeedIndex = indexMinFitness(population)
 	population[oldSeedIndex] = newSeed
-	updateHistories(params)(population)(oldSeedIndex)
 	updateSimilarities(population)(oldSeedIndex)
-	updateAllScores(population)
+	updateHistories(params)(population)(oldSeedIndex)
 }
 
 const findSimilar = (candidateSeed, population, minSimilarity, maxSimilarity) =>
@@ -589,9 +634,8 @@ const sexual =
 		)
 		oldSeedIndex = indexMinFitness(population)
 		population[oldSeedIndex] = newSeed
-		updateHistories(params)(population)(oldSeedIndex)
 		updateSimilarities(population)(oldSeedIndex)
-		updateAllScores(population)
+		updateHistories(params)(population)(oldSeedIndex)
 	}
 
 const indexMin = list =>
@@ -670,9 +714,8 @@ const fission =
 			)
 		oldSeedIndex = indexMinFitness(population)
 		population[oldSeedIndex] = newSeed
-		updateHistories(params)(population)(oldSeedIndex)
 		updateSimilarities(population)(oldSeedIndex)
-		updateAllScores(population)
+		updateHistories(params)(population)(oldSeedIndex)
 	}
 
 const createSimpleSeed = (cells, width, height) => ({
@@ -723,15 +766,14 @@ const fusion =
 		const newSeed = createSeed(params.populationSize)(cells, width, height),
 			oldSeedIndex = indexMinFitness(population)
 		population[oldSeedIndex] = newSeed
-		updateHistories(params)(population)(oldSeedIndex)
 		updateSimilarities(population)(oldSeedIndex)
-		updateAllScores(population)
-		if (
-			params.persistentMutualism &&
-			(newSeed.score <= candidateSeed.score ||
-				newSeed.score <= candidateSeed2.score)
-		)
-			sexual(params, populationIndices)(candidateSeed, population, maxSeedArea)
+		updateHistories(params)(population)(oldSeedIndex)
+		// if (
+		// 	params.persistentMutualism &&
+		// 	(newSeed.score <= candidateSeed.score ||
+		// 		newSeed.score <= candidateSeed2.score)
+		// )
+		// 	sexual(params, populationIndices)(candidateSeed, population, maxSeedArea)
 	}
 
 const symbiotic =
@@ -755,20 +797,20 @@ const bareSeeds = seeds =>
 const run = params => {
 	// if (params.randomSeed != -1)
 	// 	math.config({seed: params.randomSeed})
-	let population = initializePopulation(params.populationSize)(
-			params.seedWidth
-		)(params.seedHeight)(params.seedDensity),
-		populationIndices = Array.from(
-			{ length: params.populationSize },
-			(_, i) => i
-		)
+	population = initializePopulation(params.populationSize)(params.seedWidth)(
+		params.seedHeight
+	)(params.seedDensity)
+	populationIndices = Array.from({ length: params.populationSize }, (_, i) => i)
+	populationSize = params.populationSize
 	this.postMessage([Message.initialized, population.slice(0, 4)])
 	setAllSimilarities(population)
 	setAllHistories(params)(population)
+}
+
+const continueInitialization = params => {
 	updateAllScores(population)
 	this.postMessage([Message.initialScoring, topSeeds(population)])
 
-	let updatePopulation
 	switch (params.type) {
 		case 0:
 			updatePopulation = uniformAsexual
@@ -784,54 +826,94 @@ const run = params => {
 			break
 	}
 	updatePopulation = updatePopulation(params, populationIndices)
-	const maxRuns = params.generations * params.populationSize
-	for (let n = 0; n <= maxRuns; n++) {
-		const maxAreaDelta = params.maxAreaFinal - params.maxAreaInitial,
-			maxAreaIncrement = (maxAreaDelta * n) / (maxRuns + 1),
-			maxSeedArea = params.maxAreaInitial + maxAreaIncrement,
-			tournamentSample = sampleN(populationIndices, params.tournamentSize).map(
-				i => population[i]
-			),
-			candidateSeed = maxFitness(tournamentSample)
-
-		updatePopulation(candidateSeed, population, maxSeedArea)
-		if (n % 10 == 0) postMessage([Message.runCompleted, n])
-		if (n % Math.max(params.populationSize, 200) == 0)
-			postMessage([
-				Message.generationCompleted,
-				bareSeeds(topSeeds(population))
-			])
-	}
+	maxRuns = params.generations * params.populationSize
+	maxAreaDelta = params.maxAreaFinal - params.maxAreaInitial
+	computeRun()
 }
 
-let threads
+const computeRun = () => {
+	// for (let n = 0; n <= maxRuns; n++) {
+	const maxAreaIncrement = (maxAreaDelta * runs) / (maxRuns + 1),
+		maxSeedArea = params.maxAreaInitial + maxAreaIncrement,
+		tournamentSample = sampleN(populationIndices, params.tournamentSize).map(
+			i => population[i]
+		),
+		candidateSeed = maxFitness(tournamentSample)
+
+	updatePopulation(candidateSeed, population, maxSeedArea)
+}
+
+let threads,
+	runs,
+	updatePopulation,
+	population,
+	populationSize,
+	populationIndices,
+	phase,
+	initializedSeeds,
+	maxAreaDelta,
+	maxRuns,
+	params,
+	quadGroupsCount
 
 onmessage = function (e) {
 	switch (e.data[0]) {
 		case Message.start:
 			// console.log('Starting')
-			threads = Array.from({ length: 16 }, () => {
+			runs = phase = initializedSeeds = quadGroupsCount = 0
+			params = e.data[1]
+			const quadGroupsPerSeed = Math.round(params.populationSize / 3) // avoids floating point issues with ceil
+			threads = Array.from({ length: params.threads }, () => {
 				const thread = new Worker('score_quad.js')
 				thread.onmessage = function (e) {
 					switch (e.data[0]) {
 						case 'scored':
-							console.log('yay', e.data[1])
+							if (phase == 0) {
+								e.data[1].forEach(([seedIndices, scores]) => {
+									updateHistoriesFromGame(population)(seedIndices, scores)
+								})
+								if (++quadGroupsCount == quadGroupsPerSeed) {
+									quadGroupsCount = 0 // reset to count again
+									postMessage([
+										Message.initialScoringUpdate,
+										++initializedSeeds
+									])
+									if (initializedSeeds == populationSize) {
+										phase = 1
+										continueInitialization(params)
+									}
+								}
+							} else {
+								e.data[1].forEach(([seedIndices, scores]) => {
+									updateHistoriesFromGame(population)(seedIndices, scores)
+								})
+								if (++quadGroupsCount == quadGroupsPerSeed) {
+									quadGroupsCount = 0
+									updateAllScores(population)
+									if (runs % 10 == 0) postMessage([Message.runCompleted, runs])
+									if (runs % Math.max(populationSize, 50) == 0)
+										postMessage([
+											Message.generationCompleted,
+											bareSeeds(topSeeds(population))
+										])
+									if (runs++ <= maxRuns) computeRun()
+								}
+							}
 							break
 					}
 				}
 				thread.postMessage([
 					'init',
-					e.data[1].widthFactor,
-					e.data[1].heightFactor,
-					e.data[1].timeFactor
+					params.widthFactor,
+					params.heightFactor,
+					params.timeFactor
 				])
 				return thread
 			})
-			run(e.data[1])
+			run(params)
 			break
 
 		case Message.reset:
-			// console.log('Resetting')
 			this.postMessage([Message.resetThreads])
 			break
 

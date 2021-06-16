@@ -1,8 +1,8 @@
 <script lang="ts">
 	import types from '../lib/game/types'
 	import {
+		threads,
 		running,
-		// runs,
 		type,
 		randomSeed,
 		population,
@@ -44,6 +44,22 @@
 				>{$running ? 'Reset' : 'Start'}</button
 			>
 		</div>
+		<Parameter
+			class="parameter"
+			id="threads"
+			title="threads"
+			description="Use the full power of your CPU"
+			let:id
+		>
+			<input
+				{id}
+				bind:value={$threads}
+				type="number"
+				min="1"
+				max="1024"
+				placeholder="Count"
+			/>
+		</Parameter>
 		<Parameter
 			class="parameter"
 			id="type"

@@ -76,16 +76,6 @@ const step = (rows, cols) => grid => {
 const initializeSeed = populationSize => density => width => height =>
 	createSeed(populationSize)(randBools(density)(width * height), width, height)
 
-const initializePopulation =
-	populationSize => seedWidth => seedHeight => seedDensity => {
-		population = []
-		for (let i = 0; i < populationSize; i++)
-			population.push(
-				initializeSeed(populationSize)(seedDensity)(seedWidth)(seedHeight)
-			)
-		return population
-	}
-
 const similarity = (cells1, cells2) => {
 	let same = 0
 	for (let i = 0; i < cells1.length; i++) if (cells1[i] == cells2[i]) same++
@@ -294,31 +284,6 @@ const updateHistoriesFromGame = (seed, score, other1, other2, other3) => {
 	seed.history[other3].games++
 }
 
-const updateHistories = params => population => seedIndex => {
-	population[seedIndex].history[seedIndex].scores = 0.5
-	population[seedIndex].history[seedIndex].games = 1
-	const length = population.length - 1,
-		shuffled = shuffle(
-			Array.from({ length }, (_, j) => (j >= seedIndex ? j + 1 : j))
-		)
-	// compete with partitions of 3
-	for (let j = 0; j < length; j += 3) {
-		const j0 = shuffled[j],
-			j1 = shuffled[(j + 1) % length],
-			j2 = shuffled[(j + 2) % length]
-		const scores = scoreQuad(params)([
-			population[seedIndex],
-			population[j0],
-			population[j1],
-			population[j2]
-		])
-		updateHistoriesFromGame(population[seedIndex], scores[0], j0, j1, j2)
-		updateHistoriesFromGame(population[j0], scores[1], seedIndex, j1, j2)
-		updateHistoriesFromGame(population[j1], scores[2], seedIndex, j0, j2)
-		updateHistoriesFromGame(population[j2], scores[3], seedIndex, j0, j1)
-	}
-}
-
 const updateAllScores = population => {
 	population.forEach(seed => {
 		seed.score =
@@ -385,16 +350,24 @@ const bareSeeds = seeds =>
 let widthFactor, heightFactor, timeFactor
 
 onmessage = function (e) {
-	console.log('anything?')
 	switch (e.data[0]) {
 		case 'init':
 			console.log('New thread')
-			;[(widthFactor, heightFactor, timeFactor)] =
-				e.data[1]
+			;[widthFactor, heightFactor, timeFactor] = e.data.slice(1)
 			break
 
 		case 'quad':
-			// console.log('Resetting')
+			const population = e.data[1],
+				groups = e.data[2]
+			this.postMessage([
+				'scored',
+				groups.map(group => [
+					group,
+					scoreQuad({ widthFactor, heightFactor, timeFactor })(
+						group.map(seed => population[seed])
+					)
+				])
+			])
 			break
 
 		default:
