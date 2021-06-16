@@ -2,6 +2,7 @@
 	import {
 		seedsInitialized,
 		topRelativeFitness,
+		eliteRelativeFitness,
 		maxRuns,
 		runs,
 		runningAnim,
@@ -109,9 +110,9 @@
 		{#if $seedsInitialized == 0 || $seedsInitialized == $population}
 			{$runs} out of {$maxRuns.toLocaleString()} runs, {Math.floor(
 				$runs / $population
-			)} out of {$generations} generations, Average top seed fitness: {$topRelativeFitness.toFixed(
-				2
-			)}
+			)} out of {$generations.toLocaleString()} generations, Avg top seed fitness:
+			{$topRelativeFitness.toFixed(2)}, Avg elite fitness:
+			{$eliteRelativeFitness.toFixed(2)}
 		{/if}
 		{#if !($seedsInitialized == 0 || $seedsInitialized == $population)}
 			{$seedsInitialized} out of {$population} seeds initialized

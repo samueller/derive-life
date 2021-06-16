@@ -424,6 +424,16 @@ const updateAllScores = population => {
 	})
 }
 
+const meanScore = seeds =>
+	seeds.reduce((sum, seed) => sum + seed.score, 0) / seeds.length
+
+const topSeedsWithEliteFitness = eliteSize => population => {
+	seeds = population.slice()
+	seeds.sort((seed1, seed2) => seed2.score - seed1.score)
+	// console.log('El size', eliteSize, seeds.length)
+	return [seeds.slice(0, 4), meanScore(seeds.slice(0, eliteSize))]
+}
+
 const topSeeds = population => {
 	seeds = population.slice()
 	seeds.sort((seed1, seed2) => seed2.score - seed1.score)
@@ -806,7 +816,10 @@ const run = params => {
 
 const continueInitialization = params => {
 	updateAllScores(population)
-	this.postMessage([Message.initialScoring, topSeeds(population)])
+	this.postMessage([
+		Message.initialScoring,
+		...topSeedsWithEliteFitness(params.eliteSize)(population)
+	])
 
 	switch (params.type) {
 		case 0:
@@ -886,11 +899,16 @@ onmessage = function (e) {
 									quadGroupsCount = 0
 									updateAllScores(population)
 									if (runs % 10 == 0) postMessage([Message.runCompleted, runs])
-									if (runs % Math.max(populationSize, 50) == 0)
+									if (runs % Math.max(populationSize, 50) == 0) {
+										const [top, eliteFitness] = topSeedsWithEliteFitness(
+											params.eliteSize
+										)(population)
 										postMessage([
 											Message.generationCompleted,
-											bareSeedsWithScore(topSeeds(population))
+											bareSeedsWithScore(top),
+											eliteFitness
 										])
+									}
 									if (runs++ <= maxRuns) computeRun()
 								}
 							}

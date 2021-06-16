@@ -3,6 +3,7 @@ import { writable, derived } from 'svelte/store'
 export const threads = writable(4),
 	seedsInitialized = writable(0),
 	topRelativeFitness = writable(0),
+	eliteRelativeFitness = writable(0),
 	running = writable(false),
 	runningAnim = writable(false),
 	runs = writable(0),
