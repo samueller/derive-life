@@ -4,32 +4,32 @@
 		running,
 		// runs,
 		type,
-		seed,
+		randomSeed,
 		population,
 		trials,
 		generations,
-		min_seed_width,
-		min_seed_height,
-		seed_width,
-		seed_height,
-		max_area_initial,
-		max_area_final,
-		seed_density,
-		width_factor,
-		height_factor,
-		time_factor,
-		tournament_size,
-		mutation_rate,
-		prob_grow,
-		prob_flip,
-		prob_shrink,
-		elite_size,
-		min_similarity,
-		max_similarity,
-		prob_fission,
-		prob_fusion,
-		fusion_shuffle,
-		persistent_mutualism
+		minSeedWidth,
+		minSeedHeight,
+		seedWidth,
+		seedHeight,
+		maxAreaInitial,
+		maxAreaFinal,
+		seedDensity,
+		widthFactor,
+		heightFactor,
+		timeFactor,
+		tournamentSize,
+		mutationRate,
+		probGrow,
+		probShrink,
+		eliteSize,
+		minSimilarity,
+		maxSimilarity,
+		probFission,
+		probFusion,
+		fusionShuffle,
+		persistentMutualism,
+		probFlip
 	} from '../lib/game/store'
 	import quad from '../lib/game/quad_life'
 	import Parameter from './Parameter.svelte'
@@ -41,7 +41,7 @@
 	<form on:submit|preventDefault>
 		<div class="controls">
 			<button on:click={() => quad.startPause(window.requestAnimationFrame)}
-				>{$running ? 'Pause' : 'Start'}</button
+				>{$running ? 'Reset' : 'Start'}</button
 			>
 		</div>
 		<Parameter
@@ -61,14 +61,14 @@
 		</Parameter>
 		<Parameter
 			class="parameter"
-			id="seed"
+			id="random-seed"
 			title="random seed"
 			description="-1 means complete random"
 			let:id
 		>
 			<input
 				{id}
-				bind:value={$seed}
+				bind:value={$randomSeed}
 				type="number"
 				min="-1"
 				max="9999"
@@ -132,7 +132,7 @@
 		>
 			<input
 				{id}
-				bind:value={$min_seed_width}
+				bind:value={$minSeedWidth}
 				type="number"
 				min="1"
 				max="99"
@@ -148,7 +148,7 @@
 		>
 			<input
 				{id}
-				bind:value={$min_seed_height}
+				bind:value={$minSeedHeight}
 				type="number"
 				min="1"
 				max="99"
@@ -164,9 +164,9 @@
 		>
 			<input
 				{id}
-				bind:value={$seed_width}
+				bind:value={$seedWidth}
 				type="number"
-				min={$min_seed_width}
+				min={$minSeedWidth}
 				max="99"
 				placeholder="Width"
 			/>
@@ -180,9 +180,9 @@
 		>
 			<input
 				{id}
-				bind:value={$seed_height}
+				bind:value={$seedHeight}
 				type="number"
-				min={$min_seed_height}
+				min={$minSeedHeight}
 				max="99"
 				placeholder="Height"
 			/>
@@ -196,10 +196,10 @@
 		>
 			<input
 				{id}
-				bind:value={$max_area_initial}
+				bind:value={$maxAreaInitial}
 				type="number"
-				min={$min_seed_width * $min_seed_height}
-				max={$min_seed_width * $min_seed_height * 100}
+				min={$minSeedWidth * $minSeedHeight}
+				max={$minSeedWidth * $minSeedHeight * 100}
 				placeholder="Area"
 			/>
 		</Parameter>
@@ -212,10 +212,10 @@
 		>
 			<input
 				{id}
-				bind:value={$max_area_final}
+				bind:value={$maxAreaFinal}
 				type="number"
-				min={$max_area_initial}
-				max={$max_area_initial * 10}
+				min={$maxAreaInitial}
+				max={$maxAreaInitial * 10}
 				placeholder="Area"
 			/>
 		</Parameter>
@@ -228,7 +228,7 @@
 		>
 			<input
 				{id}
-				bind:value={$seed_density}
+				bind:value={$seedDensity}
 				type="number"
 				min="0"
 				max="1"
@@ -245,7 +245,7 @@
 		>
 			<input
 				{id}
-				bind:value={$width_factor}
+				bind:value={$widthFactor}
 				type="number"
 				min="2"
 				max="99"
@@ -262,7 +262,7 @@
 		>
 			<input
 				{id}
-				bind:value={$height_factor}
+				bind:value={$heightFactor}
 				type="number"
 				min="2"
 				max="99"
@@ -279,7 +279,7 @@
 		>
 			<input
 				{id}
-				bind:value={$time_factor}
+				bind:value={$timeFactor}
 				type="number"
 				min="1"
 				max="99"
@@ -296,7 +296,7 @@
 		>
 			<input
 				{id}
-				bind:value={$tournament_size}
+				bind:value={$tournamentSize}
 				type="number"
 				min="1"
 				max={$population}
@@ -312,7 +312,7 @@
 		>
 			<input
 				{id}
-				bind:value={$mutation_rate}
+				bind:value={$mutationRate}
 				type="number"
 				min="0"
 				max="1"
@@ -329,10 +329,10 @@
 		>
 			<input
 				{id}
-				bind:value={$prob_grow}
+				bind:value={$probGrow}
 				type="number"
 				min="0"
-				max={1 - $prob_shrink}
+				max={1 - $probShrink}
 				step="0.05"
 				placeholder="Probability"
 			/>
@@ -346,10 +346,10 @@
 		>
 			<input
 				{id}
-				bind:value={$prob_shrink}
+				bind:value={$probShrink}
 				type="number"
 				min="0"
-				max={1 - $prob_grow}
+				max={1 - $probGrow}
 				step="0.05"
 				placeholder="Probability"
 			/>
@@ -361,7 +361,7 @@
 			description="In variable asexual reproduction"
 			let:id
 		>
-			{$prob_flip}
+			{$probFlip}
 		</Parameter>
 		<Parameter
 			class="parameter"
@@ -372,7 +372,7 @@
 		>
 			<input
 				{id}
-				bind:value={$elite_size}
+				bind:value={$eliteSize}
 				type="number"
 				min="1"
 				max={$population}
@@ -388,7 +388,7 @@
 		>
 			<input
 				{id}
-				bind:value={$min_similarity}
+				bind:value={$minSimilarity}
 				type="number"
 				min="0"
 				max="1"
@@ -405,7 +405,7 @@
 		>
 			<input
 				{id}
-				bind:value={$max_similarity}
+				bind:value={$maxSimilarity}
 				type="number"
 				min="0"
 				max="1"
@@ -422,7 +422,7 @@
 		>
 			<input
 				{id}
-				bind:value={$prob_fission}
+				bind:value={$probFission}
 				type="number"
 				min="0"
 				max="1"
@@ -439,10 +439,10 @@
 		>
 			<input
 				{id}
-				bind:value={$prob_fusion}
+				bind:value={$probFusion}
 				type="number"
 				min="0"
-				max={1 - $prob_fission}
+				max={1 - $probFission}
 				step="0.001"
 				placeholder="Probability"
 			/>
@@ -454,7 +454,7 @@
 			description="Whether to shuffle cells in fused seed"
 			let:id
 		>
-			<input {id} bind:checked={$fusion_shuffle} type="checkbox" />
+			<input {id} bind:checked={$fusionShuffle} type="checkbox" />
 		</Parameter>
 		<Parameter
 			class="parameter"
@@ -463,7 +463,7 @@
 			description="Only fuse seeds during symbiosis if the fused pair is more fit than each seed"
 			let:id
 		>
-			<input {id} bind:checked={$persistent_mutualism} type="checkbox" />
+			<input {id} bind:checked={$persistentMutualism} type="checkbox" />
 		</Parameter>
 	</form>
 </aside>

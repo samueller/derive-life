@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { maxRuns, runs, runningAnim, population } from '../lib/game/store'
+	import {
+		maxRuns,
+		runs,
+		runningAnim,
+		population,
+		generations
+	} from '../lib/game/store'
 	import quad, {
 		context as contextStore,
 		canvas as canvasStore,
@@ -98,9 +104,9 @@
 		Steps: {$steps}
 	</div>
 	<p style="margin-bottom: 7px;">
-		{$runs} out of {$maxRuns.toLocaleString()} runs, Generation {Math.floor(
+		{$runs} out of {$maxRuns.toLocaleString()} runs, {Math.floor(
 			$runs / $population
-		) + 1}, Average elite seed fitness: 5.2
+		)} out of {$generations} generations, Average elite seed fitness: 5.2
 	</p>
 	<canvas bind:this={canvas} width="600" height="600" />
 </main>

@@ -52,8 +52,11 @@
 		position: relative;
 		top: 1px;
 	}
-
+	canvas {
+		box-shadow: 0px 0px 3px black;
+	}
 	canvas.seed {
 		vertical-align: middle;
+		box-shadow: 0px 0px 2px black;
 	}
 </style>
