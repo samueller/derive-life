@@ -78,22 +78,6 @@
 		</Parameter>
 		<Parameter
 			class="parameter"
-			id="random-seed"
-			title="random seed"
-			description="-1 means complete random"
-			let:id
-		>
-			<input
-				{id}
-				bind:value={$randomSeed}
-				type="number"
-				min="-1"
-				max="9999"
-				placeholder="Random seed"
-			/>
-		</Parameter>
-		<Parameter
-			class="parameter"
 			id="population"
 			title="population"
 			description="Population always remains constant"
@@ -106,22 +90,6 @@
 				min="4"
 				max="9999"
 				placeholder="Population"
-			/>
-		</Parameter>
-		<Parameter
-			class="parameter"
-			id="trials"
-			title="trials per run"
-			description="Seeds placed/rotated randomly each trial"
-			let:id
-		>
-			<input
-				{id}
-				bind:value={$trials}
-				type="number"
-				min="1"
-				max="99"
-				placeholder="Trials"
 			/>
 		</Parameter>
 		<Parameter
@@ -428,6 +396,38 @@
 				max="1"
 				step="0.01"
 				placeholder="Percent"
+			/>
+		</Parameter>
+		<Parameter
+			class="parameter"
+			id="random-seed"
+			title="random seed"
+			description="-1 means complete random"
+			let:id
+		>
+			<input
+				{id}
+				bind:value={$randomSeed}
+				type="number"
+				min="-1"
+				max="9999"
+				placeholder="Random seed"
+			/>
+		</Parameter>
+		<Parameter
+			class="parameter"
+			id="trials"
+			title="trials per run"
+			description="Seeds placed/rotated randomly each trial"
+			let:id
+		>
+			<input
+				{id}
+				bind:value={$trials}
+				type="number"
+				min="1"
+				max="99"
+				placeholder="Trials"
 			/>
 		</Parameter>
 		<Parameter

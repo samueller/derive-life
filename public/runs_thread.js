@@ -842,7 +842,6 @@ const continueInitialization = params => {
 }
 
 const computeRun = () => {
-	// for (let n = 0; n <= maxRuns; n++) {
 	const maxAreaIncrement = (maxAreaDelta * runs) / (maxRuns + 1),
 		maxSeedArea = params.maxAreaInitial + maxAreaIncrement,
 		tournamentSample = sampleN(populationIndices, params.tournamentSize).map(
@@ -878,8 +877,6 @@ onmessage = function (e) {
 				thread.onmessage = function (e) {
 					switch (e.data[0]) {
 						case 'scored':
-							// const [seedIndices, scores] = e.data[1]
-							// console.log('seIn', seedIndices, scores, e.data[1])
 							if (phase == 0) {
 								updateHistoriesFromGame(population)(e.data[1], e.data[2])
 								if (++quadGroupsCount == quadGroupsPerSeed) {
