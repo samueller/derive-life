@@ -803,7 +803,7 @@ const bareSeedsWithScore = seeds =>
 
 const run = params => {
 	// if (params.randomSeed != -1)
-	// 	math.config({seed: params.randomSeed})
+	// 	math.config({randomSeed: params.randomSeed})
 	population = initializePopulation(params.populationSize)(params.seedWidth)(
 		params.seedHeight
 	)(params.seedDensity)

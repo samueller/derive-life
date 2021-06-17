@@ -49,7 +49,7 @@
 			class="parameter"
 			id="threads"
 			title="threads"
-			description="Use the full power of your CPU"
+			description="Parallelize calculations to use the full power of your CPU"
 			let:id
 		>
 			<input
@@ -96,7 +96,7 @@
 			class="parameter"
 			id="generations"
 			title="generations"
-			description="Generation is when opulation size number of children born"
+			description="Generation is when population size number of children born"
 			let:id
 		>
 			<input
